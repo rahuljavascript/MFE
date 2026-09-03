@@ -1,16 +1,16 @@
-name: deploy-container
+name: deploy-marketing
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'container/**'
-      - '.github/workflows/container.yml'
+      - 'marketing/**'
+      - '.github/workflows/marketing.yml'
 
 defaults:
   run:
-    working-directory: ./container
+    working-directory: ./marketing
 
 jobs:
     build:
@@ -28,20 +28,18 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Build the container app
+            - name: Build the marketing app
               run: npm run build
-              env:
-                PRODUCTION_DOMAIN: ${{ secrets.PRODUCTION_DOMAIN }}
 
             - name: Deploy to AWS Cli
               uses: shinyinc/action-aws-cli@v1.2
-            - run: aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }}/container/latest --delete
+            - run: aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }}/marketing/latest --delete
               env:
                 AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
                 AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
                 AWS_DEFAULT_REGION: "ap-south-1"
             
-            - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/container/latest/index.html"
+            - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/marketing/latest/remoteEntry.js"
               env:
                 AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
                 AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
