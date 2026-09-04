@@ -6,7 +6,7 @@ import { StylesProvider, createGenerateClassName } from "@material-ui/core/style
 
 
 const generateClassName = createGenerateClassName({
-  prefix: "co",
+  productionPrefix: "co",
 });
 
 const App = () => {
