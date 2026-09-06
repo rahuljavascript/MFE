@@ -7,9 +7,11 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
+  output: {
+    publicPath: 'http://localhost:8082/',
+  },
   devServer: {
-    port: 8081,
-    publicPath: 'http://localhost:8081/',
+    port: 8082,
     historyApiFallback: {
         index: '/index.html'
     },
@@ -17,10 +19,10 @@ module.exports = merge(common, {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: 'marketing',
+      name: 'auth',
       filename: 'remoteEntry.js',
       exposes: {
-        './MarketingApp': './src/bootstrap'
+        './AuthApp': './src/bootstrap'
       },
       shared: packageJson.dependencies
     }),
