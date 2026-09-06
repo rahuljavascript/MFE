@@ -1,0 +1,46 @@
+name: deploy-dashboard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dashboard/**'
+      - '.github/workflows/dashboard.yml'
+
+defaults:
+  run:
+    working-directory: ./dashboard
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: '18'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build the dashboard app
+              run: npm run build
+
+            - name: Deploy to AWS Cli
+              uses: shinyinc/action-aws-cli@v1.2
+            - run: aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }}/dashboard/latest --delete
+              env:
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                AWS_DEFAULT_REGION: "ap-south-1"
+            
+            - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/dashboard/latest/remoteEntry.js"
+              env:
+                AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+                AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                AWS_DEFAULT_REGION: "ap-south-1"
